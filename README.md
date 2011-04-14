@@ -5,6 +5,8 @@ SMSnatcher
 
 SMSnatcher is a lyric scraper written in Java which finds and saves lyrics from LyricWiki and SongMeanings and writes them to MP3 tags. The lyrics can then be displayed in a media player.
 
+[Demonstration Video][video]
+
 <img src="http://i.imgur.com/jCZvG.png" width="400" alt="SMSnatcher running" />
 
 SMSnatcher makes use of the following projects:
@@ -24,3 +26,4 @@ If you find a bug please report it or it'll never get fixed. Verify that it hasn
 [jsoup]: http://jsoup.org/
 [issues]: https://github.com/joshschreuder/SMSnatcher/issues
 [newissue]: https://github.com/joshschreuder/SMSnatcher/issues/new
+[video]: https://www.youtube.com/watch?v=ElKbnnjB2mA
