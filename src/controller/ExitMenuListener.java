@@ -24,6 +24,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
 import model.DataManager;
+
 import view.MainFrame;
 
 public class ExitMenuListener implements ActionListener {

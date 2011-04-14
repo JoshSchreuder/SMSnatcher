@@ -21,6 +21,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,11 +44,11 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 
-import model.DataManager;
 import model.SongTableModel;
 import controller.AboutMenuListener;
 import controller.ExitMenuListener;
 import controller.GoButtonListener;
+import controller.LoadDataSwingWorker;
 import controller.OpenFilesystemButtonListener;
 import controller.OverwriteLyricsOptionListener;
 import controller.RowDoubleClickListener;
@@ -101,12 +102,8 @@ public class MainFrame extends javax.swing.JFrame {
 	private JMenu fileMenuItem;
 	private static Properties options = new Properties();
 	
-	public static String VERSION_NUM = "v0.06 Beta";
+	public static String VERSION_NUM = "v0.07 Beta";
 
-	/**
-	* Auto-generated main method to display this JFrame
-	*/
-		
 	public MainFrame() {
 		super();
 		initGUI();
@@ -115,7 +112,7 @@ public class MainFrame extends javax.swing.JFrame {
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		this.addWindowListener(new WindowCloseListener());
 		try {
-			FileInputStream in = new FileInputStream("options.ini");
+			FileInputStream in = new FileInputStream(getSettingsDirectory()+"/options.ini");
 			options.load(in);
 			setOptionsInGUI();
 		} catch (Exception e) {
@@ -127,7 +124,22 @@ public class MainFrame extends javax.swing.JFrame {
 			options.setProperty("UseSongMeanings", "false");
 			setOptionsInGUI();
 		}
-		DataManager.loadData();
+		new LoadDataSwingWorker().execute();
+	}
+	
+	public static File getSettingsDirectory() {
+	    String userHome = System.getProperty("user.home");
+	    if(userHome == null) {
+	        throw new IllegalStateException("user.home==null");
+	    }
+	    File home = new File(userHome);
+	    File settingsDirectory = new File(home, ".smsnatcher");
+	    if(!settingsDirectory.exists()) {
+	        if(!settingsDirectory.mkdir()) {
+	            throw new IllegalStateException(settingsDirectory.toString());
+	        }
+	    }
+	    return settingsDirectory;
 	}
 	
 	public static void setOptionsInGUI() {
@@ -149,7 +161,7 @@ public class MainFrame extends javax.swing.JFrame {
 	
 	public static void saveOptions() {
 		try {
-			FileOutputStream out = new FileOutputStream("options.ini");
+			FileOutputStream out = new FileOutputStream(getSettingsDirectory()+"/options.ini");
 			options.store(out, "---Last Updated---");
 			out.close();
 		} catch (IOException e) {
