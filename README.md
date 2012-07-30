@@ -12,6 +12,14 @@ SMSnatcher - Lyric Scraper / Tagger &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[Downloa
 
 <img src="http://i.imgur.com/2sKW5.png" height="400" alt="SMSnatcher output on iPhone" />
 
+## Instructions
+
+* [Download SMSnatcher][downloadlink] and run it
+* Click the Open button in the top right and navigate to your music directory
+* Click the Go! button and lyrics will begin flooding in.
+
+NB. The default settings are pretty good, but you can switch to SongMeanings as lyric source, and choose to Overwrite Lyrics from the Options menu 
+
 ## Thanks
 
 SMSnatcher makes use of the following (awesome) libraries:
