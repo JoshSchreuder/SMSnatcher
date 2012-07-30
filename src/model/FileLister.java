@@ -37,8 +37,11 @@ public class FileLister {
 	  static public List<File> getFileListing(
 	    File aStartingDir
 	  ) throws FileNotFoundException {
+		System.out.println("Validating directory");
 	    validateDirectory(aStartingDir);
+	    System.out.println("Getting file list");
 	    List<File> result = getFileListingNoSort(aStartingDir);
+	    System.out.println("Sorting files");
 	    Collections.sort(result);
 	    return result;
 	  }
@@ -54,12 +57,15 @@ public class FileLister {
 	      if ( ! file.isFile() ) {
 	        //must be a directory
 	        //recursive call!
+	    	System.out.println(file.getName());
 	        List<File> deeperList = getFileListingNoSort(file);
 	        result.addAll(deeperList);
 	      }
 	      else {
-	    	  if(file.getName().endsWith("mp3"))
+	    	  if(file.getName().endsWith("mp3")) {
+	    		System.out.println(file.getName());
 	    		result.add(file);
+	    	  }
 	      }
 	    }
 	    return result;

@@ -44,19 +44,19 @@ public class MP3TagHandler {
 			return song;
 		} catch (CannotReadException e1) {
 			// TODO Auto-generated catch block
-			// e1.printStackTrace();
+			 //e1.printStackTrace();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
-			// e1.printStackTrace();
+			 //e1.printStackTrace();
 		} catch (TagException e1) {
 			// TODO Auto-generated catch block
-			// e1.printStackTrace();
+			 //e1.printStackTrace();
 		} catch (ReadOnlyFileException e1) {
 			// TODO Auto-generated catch block
-			// e1.printStackTrace();
+			//e1.printStackTrace();
 		} catch (InvalidAudioFrameException e1) {
 			// TODO Auto-generated catch block
-			// e1.printStackTrace();
+			//e1.printStackTrace();
 		}
 		return null;
 	}

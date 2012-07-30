@@ -19,12 +19,13 @@ package controller;
 
 import javax.swing.SwingWorker;
 
+import model.Logger;
 import model.LyricWikiScraper;
 import model.MP3TagHandler;
 import model.SongMeaningsScraper;
 import model.SongTableModel;
 
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 import view.MainFrame;
 
@@ -48,7 +49,7 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 			MainFrame.getSongTable().getSelectionModel().setSelectionInterval(i, i);
 			// If lyrics are blank
 			if(lyricsColumn.compareTo("") == 0) {
-				MainFrame.getStatusLabel().setText("Status: getting lyrics " + (i+1) + " of " + model.getRowCount());
+				Logger.LogToStatusBar("Getting lyrics " + (i+1) + " of " + model.getRowCount());
 				String artist = model.getValueAt(i, 0);
 				artist = artist.replace("[", "");
 				artist = artist.replace("]", "");
@@ -62,7 +63,7 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 					String lyrics = LyricWikiScraper.getLyrics(artist, track);
 					// If artist has an & sign, try replacing with 'and' and search again for more results
 					if(artist.contains("&") && (lyrics.compareTo("") == 0 || lyrics != null)) {
-						System.out.println("Artist contains &, searching again with 'And' instead");
+						Logger.LogToStatusBar("Artist contains &, searching again with 'And' instead");
 						artist = artist.replace("&", " And ");
 						lyrics = LyricWikiScraper.getLyrics(artist, track);
 					}
@@ -74,8 +75,14 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 				}
 				else {
 					String lyrics = SongMeaningsScraper.getLyrics(artist, track);
+					// If artist has an & sign, try replacing with 'and' and search again for more results
+					if(artist.contains("&") && (lyrics.compareTo("") == 0 || lyrics != null)) {
+						Logger.LogToStatusBar("Artist contains &, searching again with 'And' instead");
+						artist = artist.replace("&", " And ");
+						lyrics = SongMeaningsScraper.getLyrics(artist, track);
+					}
 					
-					if(lyrics != null && lyrics.compareTo("") != 0) {
+					if(lyrics.compareTo("") != 0) {
 						model.setValueAt(lyrics, i, 2);
 						MP3TagHandler.saveLyrics(lyrics, model.getValueAt(i, 3));
 						numLyricsChanged += 1;
@@ -86,7 +93,7 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 			else {
 				// If overwriteLyrics is set, we are overwriting them anyway
 				if(MainFrame.overwriteLyrics() == true) {
-					MainFrame.getStatusLabel().setText("Status: getting lyrics " + (i+1) + " of " + model.getRowCount());
+					Logger.LogToStatusBar("Getting lyrics " + (i+1) + " of " + model.getRowCount());
 					String artist = model.getValueAt(i, 0);
 					artist = artist.replace("[", "");
 					artist = artist.replace("]", "");
@@ -98,8 +105,8 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 						
 						// If artist has an & sign, try replacing with 'and' and search again for more results
 						if(artist.contains("&") && (lyrics.compareTo("") == 0 || lyrics != null)) {
-							System.out.println("Artist contains &, searching again with 'And' instead");
-							artist = artist.replace("&", " And ");
+							Logger.LogToStatusBar("Artist contains &, searching again with 'And' instead");
+							artist = artist.replace("&", "And");
 							lyrics = LyricWikiScraper.getLyrics(artist, track);
 						}
 						if(lyrics != null && lyrics.compareTo("") != 0) {
@@ -110,8 +117,14 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 					}
 					else {
 						String lyrics = SongMeaningsScraper.getLyrics(artist, track);
+						// If artist has an & sign, try replacing with 'and' and search again for more results
+						if(artist.contains("&") && (lyrics.compareTo("") == 0 || lyrics != null)) {
+							Logger.LogToStatusBar("Artist contains &, searching again with 'And' instead");
+							artist = artist.replace("&", "And");
+							lyrics = SongMeaningsScraper.getLyrics(artist, track);
+						}
 						
-						if(lyrics != null && lyrics.compareTo("") != 0) {
+						if(lyrics.compareTo("") != 0) {
 							model.setValueAt(lyrics, i, 2);
 							MP3TagHandler.saveLyrics(lyrics, model.getValueAt(i, 3));
 							numLyricsChanged += 1;
@@ -130,7 +143,7 @@ public class GetLyricsSwingWorker extends SwingWorker<String, Object> {
 		MainFrame.getOpenButton().setEnabled(true);
 		MainFrame.getGoButton().setEnabled(true);
 		MainFrame.getSongTable().setEnabled(true);
-		MainFrame.getStatusLabel().setText("Status: done getting lyrics (changed " + numLyricsChanged + " lyrics)");
+		Logger.LogToStatusBar("Done getting lyrics (changed " + numLyricsChanged + " lyrics)");
 		
 		// TODO: Resolve artist / song mismatches
 		

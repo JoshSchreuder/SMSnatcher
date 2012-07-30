@@ -20,6 +20,7 @@ package controller;
 import javax.swing.SwingWorker;
 
 import model.DataManager;
+import model.Logger;
 import view.MainFrame;
 
 public class LoadDataSwingWorker extends SwingWorker<String, Object> {
@@ -34,16 +35,16 @@ public class LoadDataSwingWorker extends SwingWorker<String, Object> {
         MainFrame.getSongTable().setEnabled(false);
 		
         if(DataManager.verifyResourcesOnDisk() == false) {
-        	MainFrame.getStatusLabel().setText("Status: extracting DB files");
+        	Logger.LogToStatusBar("Extracting DB files");
         	DataManager.extractResourcesToDisk();
         }
-        MainFrame.getStatusLabel().setText("Status: loading DB files");
+        Logger.LogToStatusBar("Loading DB files");
         DataManager.loadData();
 		
 		MainFrame.getOpenButton().setEnabled(true);
 		MainFrame.getGoButton().setEnabled(true);
 		MainFrame.getSongTable().setEnabled(true);
-		MainFrame.getStatusLabel().setText("Status: loading done.");
+		Logger.LogToStatusBar("Loading done.");
 		return null;
 	}
 

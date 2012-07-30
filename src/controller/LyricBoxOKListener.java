@@ -20,6 +20,7 @@ package controller;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import model.Logger;
 import model.MP3TagHandler;
 
 import view.LyricEditFrame;
@@ -36,7 +37,7 @@ public class LyricBoxOKListener implements MouseListener {
 	public void mouseClicked(MouseEvent e) {
 		// Save lyrics from box to track
 		String lyrics = lyricEditFrame.getLyricBox().getText();
-		System.out.println("Mouse clicked OK to save, saving lyrics...");
+		Logger.LogToStatusBar("Mouse clicked OK to save, saving lyrics...");
 		MP3TagHandler.saveLyrics(lyrics, lyricEditFrame.getSongLocation());
 		MainFrame.getSongTable().getModel().setValueAt(lyrics, lyricEditFrame.getRow(), 2);
 		lyricEditFrame.dispose();

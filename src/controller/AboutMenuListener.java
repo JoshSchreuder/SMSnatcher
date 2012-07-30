@@ -28,7 +28,7 @@ import view.MainFrame;
 public class AboutMenuListener extends MouseAdapter {
 
 	 public void mousePressed(MouseEvent e) {
-		 JOptionPane.showMessageDialog((Component)e.getSource(), "SMSnatcher "+MainFrame.VERSION_NUM+"\n(c)2011 Josh Schreuder","About SMSnatcher",JOptionPane.INFORMATION_MESSAGE);
+		 JOptionPane.showMessageDialog((Component)e.getSource(), "SMSnatcher "+MainFrame.VERSION_NUM+"\n(c)2011-2012 Josh Schreuder","About SMSnatcher",JOptionPane.INFORMATION_MESSAGE);
 	 }
 
 }

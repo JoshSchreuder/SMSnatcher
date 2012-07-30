@@ -44,6 +44,7 @@ import javax.swing.JTextField;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
 
+import model.Logger;
 import model.SongTableModel;
 import controller.AboutMenuListener;
 import controller.ExitMenuListener;
@@ -52,6 +53,7 @@ import controller.LoadDataSwingWorker;
 import controller.OpenFilesystemButtonListener;
 import controller.OverwriteLyricsOptionListener;
 import controller.RowDoubleClickListener;
+import controller.UpdateArtistsOptionListener;
 import controller.UseLyricWikiOptionListener;
 import controller.UseSongMeaningsOptionListener;
 import controller.WindowCloseListener;
@@ -86,6 +88,7 @@ public class MainFrame extends javax.swing.JFrame {
 
 	private JMenuBar menuBar;
 	private static JCheckBoxMenuItem overwriteLyricsOption;
+	private JMenuItem UpdateArtistMenuItem;
 	private static JMenuItem useSongMeaningsOption;
 	private static JCheckBoxMenuItem useLyricWikiOption;
 	private JMenuItem aboutItem;
@@ -102,7 +105,7 @@ public class MainFrame extends javax.swing.JFrame {
 	private JMenu fileMenuItem;
 	private static Properties options = new Properties();
 	
-	public static String VERSION_NUM = "v0.07 Beta";
+	public static String VERSION_NUM = "v1.00";
 
 	public MainFrame() {
 		super();
@@ -117,7 +120,7 @@ public class MainFrame extends javax.swing.JFrame {
 			setOptionsInGUI();
 		} catch (Exception e) {
 			// There was an error with config, need to set defaults
-			System.out.println("Options file does not exist, creating default!");
+			Logger.LogToStatusBar("Options file does not exist, creating default!");
 			options.setProperty("LastDir", System.getProperty("user.home"));
 			options.setProperty("OverwriteLyrics", "false");
 			options.setProperty("UseLyricWiki", "true");
@@ -165,7 +168,7 @@ public class MainFrame extends javax.swing.JFrame {
 			options.store(out, "---Last Updated---");
 			out.close();
 		} catch (IOException e) {
-			System.out.println("Error saving options file");
+			Logger.LogToStatusBar("Error saving options file");
 		}
 	}
 	
@@ -318,6 +321,8 @@ public class MainFrame extends javax.swing.JFrame {
 					{
 						useSongMeaningsOption = new JCheckBoxMenuItem();
 						optionsMenu.add(useSongMeaningsOption);
+						optionsMenu.add(getUpdateArtistMenuItem());
+						getUpdateArtistMenuItem().addActionListener(new UpdateArtistsOptionListener());
 						useSongMeaningsOption.setText("Use SongMeanings");
 						useSongMeaningsOption.addItemListener(new UseSongMeaningsOptionListener());
 					}
@@ -341,5 +346,13 @@ public class MainFrame extends javax.swing.JFrame {
 		    //add your error handling code here
 			e.printStackTrace();
 		}
+	}
+	
+	private JMenuItem getUpdateArtistMenuItem() {
+		if(UpdateArtistMenuItem == null) {
+			UpdateArtistMenuItem = new JMenuItem();
+			UpdateArtistMenuItem.setText("Update SongMeaning Artists");
+		}
+		return UpdateArtistMenuItem;
 	}
 }

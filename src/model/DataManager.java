@@ -17,20 +17,23 @@ along with SMSnatcher.  If not, see <http://www.gnu.org/licenses/>.
 */
 package model;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
+import java.util.zip.ZipFile;
 
 import view.MainFrame;
 
@@ -50,49 +53,109 @@ public class DataManager {
 				System.out.println(tokens[0] + " : " + tokens[1]);
 				artistMap.put(tokens[0], tokens[1]);
 			}
+			input.close();
 		} catch (IOException e) {
-			System.out.println("Data file does not exist");
+			Logger.LogToStatusBar("Data file does not exist");
 		}
 	}
 	
 	public static boolean verifyResourcesOnDisk() {
 		File file = new File(MainFrame.getSettingsDirectory()+"/artists.db");
-		if(!file.exists())
+		if(!file.exists()) {
 			return false;
+		}
+		else {
+			if(file.length() < 100)
+				return false;
+		}
+			
 		
 		file = new File(MainFrame.getSettingsDirectory()+"/artistcorrect.db");
-		if(!file.exists())
+		if(!file.exists()) {
 			return false;
+		}
+		else {
+			if(file.length() < 100)
+				return false;
+		}
 		
 		return true;
 	}
 	
+	public static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
+		byte[] buffer = new byte[1024];
+		int len;
+		while((len = in.read(buffer)) >= 0)
+		out.write(buffer, 0, len);
+		in.close();
+		out.close();
+	}
+	
 	public static void extractResourcesToDisk() {
-		InputStream i = ClassLoader.getSystemResourceAsStream("db.zip");
-		//if(i == null)
-		//	return;
-		ZipInputStream zis = new ZipInputStream(i);
-		ZipEntry entry;
+		Enumeration<?> entries;
+		ZipFile zipFile;
+		
+		MainFrame.getProgressBar().setMinimum(0);
+		MainFrame.getProgressBar().setValue(0);
+		
+		ClassLoader.getSystemResource("db.zip");
+		
+		File zip = null;
+		try {
+			zip = new File(ClassLoader.getSystemResource("db.zip").toURI());
+		} catch (URISyntaxException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+			return;
+		}
+
+		try {
+			zipFile = new ZipFile(zip);
+			entries = zipFile.entries();
+			while(entries.hasMoreElements()) {
+				ZipEntry entry = (ZipEntry)entries.nextElement();
+				
+				copyInputStream(zipFile.getInputStream(entry),
+				new BufferedOutputStream(new FileOutputStream(MainFrame.getSettingsDirectory()+"/"+entry.getName())));
+			}
+			zipFile.close();
+		} 
+		catch (IOException ioe) {
+			return;
+		}
+	}
+	
+	/*public static void extractResourcesToDisk() {
+		InputStream fin = ;
+		BufferedInputStream bin = new BufferedInputStream(fin);
+		ZipInputStream zis = new ZipInputStream(bin);
+		ZipEntry entry = null;
 		
 		MainFrame.getProgressBar().setMinimum(0);
 		MainFrame.getProgressBar().setValue(0);
 
 		try {
 			while ((entry = zis.getNextEntry()) != null) {
+				OutputStream  fout = new FileOutputStream();
 				MainFrame.getProgressBar().setValue(0);
 				MainFrame.getProgressBar().setMaximum((int)entry.getSize());
-				FileOutputStream fout = new FileOutputStream(MainFrame.getSettingsDirectory()+"/"+entry.getName());
-			    for (int c = zis.read(); c != -1; c = zis.read()) {
-			      fout.write(c);
-			      int value = MainFrame.getProgressBar().getValue() + 1;
-			      if (value > MainFrame.getProgressBar().getMaximum()) {
-			        value = MainFrame.getProgressBar().getMaximum();
-			      }
-			      MainFrame.getProgressBar().setValue(value);
-			    }
-			    zis.closeEntry();
-			    fout.close();
+				
+				byte[] buffer = new byte[8192];
+		        int len;
+		        while ((len = zis.read(buffer)) != -1) {
+		        	fout.write(buffer, 0, len);
+		        	
+	        		int value = MainFrame.getProgressBar().getValue() + 1;
+					if (value > MainFrame.getProgressBar().getMaximum()) {
+						value = MainFrame.getProgressBar().getMaximum();
+					}
+					MainFrame.getProgressBar().setValue(value);
+		        }
+		        fout.close();
+		        break;
 			}
+			fin.close();
+			bin.close();
 			zis.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -101,7 +164,7 @@ public class DataManager {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	} */
 
 	@SuppressWarnings("unchecked")
 	public static void loadData() {
@@ -109,7 +172,7 @@ public class DataManager {
 		MainFrame.getProgressBar().setValue(0);
 		MainFrame.getProgressBar().setMaximum(3);
 		try {
-			System.out.println("Loading artists file");
+			Logger.LogToStatusBar("Loading artists file");
 			FileInputStream fin = new FileInputStream(MainFrame.getSettingsDirectory()+"/artists.db");
 			ObjectInputStream ois = new ObjectInputStream(fin);
 			artistMap = ((HashMap<String,String>)ois.readObject());
@@ -119,7 +182,7 @@ public class DataManager {
 		catch (Exception e) {
 			//e.printStackTrace();
 			// TODO: Warn the user that Artists DB does not exist and offer to get it
-			System.out.println("Artists DB does not exist, we should warn the user");
+			Logger.LogToStatusBar("Artists DB does not exist, we should warn the user");
 		}
 		
 		try {
@@ -133,7 +196,7 @@ public class DataManager {
 		catch (Exception e) {
 			//e.printStackTrace();
 			// TODO: Warn the user that Artists DB does not exist and offer to get it
-			System.out.println("Tracks DB does not exist, we should warn the user");
+			Logger.LogToStatusBar("Tracks DB does not exist, we should warn the user");
 		}
 		
 		try {
@@ -147,9 +210,11 @@ public class DataManager {
 		catch (Exception e) {
 			//e.printStackTrace();
 			// TODO: Warn the user that Artists DB does not exist and offer to get it
-			System.out.println("Artist correction DB does not exist, we should warn the user");
+			Logger.LogToStatusBar("Artist correction DB does not exist, we should warn the user");
 
 		}
+		SongMeaningsScraper.addArtistCorrection("Final Fantasy", "Owen Pallett");
+		SongMeaningsScraper.addArtistCorrection("+44", "(+44)");
 	}
 
 	public static void saveData() {
@@ -158,21 +223,21 @@ public class DataManager {
 		MainFrame.getProgressBar().setMaximum(3);
 		
 		try {
-			System.out.println("Saving artists file");
+			Logger.LogToStatusBar("Saving artists file");
 			FileOutputStream fout = new FileOutputStream(MainFrame.getSettingsDirectory()+"/artists.db");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(artistMap);
 			oos.close();
 			MainFrame.getProgressBar().setValue(1);
 			
-			System.out.println("Saving tracks file");
+			Logger.LogToStatusBar("Saving tracks file");
 			FileOutputStream fout2 = new FileOutputStream(MainFrame.getSettingsDirectory()+"/tracks.db");
 			ObjectOutputStream oos2 = new ObjectOutputStream(fout2);
 			oos2.writeObject(songMap);
 			oos2.close();
 			MainFrame.getProgressBar().setValue(2);
 			
-			System.out.println("Saving artist correction file");
+			Logger.LogToStatusBar("Saving artist correction file");
 			FileOutputStream fout3 = new FileOutputStream(MainFrame.getSettingsDirectory()+"/artistcorrect.db");
 			ObjectOutputStream oos3 = new ObjectOutputStream(fout3);
 			oos3.writeObject(artistCorrections);

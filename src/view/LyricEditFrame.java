@@ -18,11 +18,20 @@ along with SMSnatcher.  If not, see <http://www.gnu.org/licenses/>.
 package view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
+import javax.swing.text.Document;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import controller.LyricBoxCancelListener;
 import controller.LyricBoxOKListener;
@@ -50,6 +59,9 @@ public class LyricEditFrame extends JDialog {
 	private JScrollPane scrollPane;
 	private String songLocation;
 	private int row;
+	
+	final UndoManager undo = new UndoManager();
+	Document doc = null;
 
 	public LyricEditFrame(String title, String location, String lyrics, int row) {
 		this.setModal(true);
@@ -58,11 +70,64 @@ public class LyricEditFrame extends JDialog {
 		this.row = row;
 		lyricBox = new JTextArea();
 		lyricBox.setText(lyrics);
+		doc = lyricBox.getDocument();
+		setupUndoRedo();
 		initGUI();
 		lyricBox.select(0, 0);
 		this.setVisible(true);
 		BorderLayout thisLayout = new BorderLayout();
 		getContentPane().setLayout(thisLayout);
+	}
+	
+	private void setupUndoRedo() {
+		// Listen for undo and redo events
+		doc.addUndoableEditListener(new UndoableEditListener() {
+		    public void undoableEditHappened(UndoableEditEvent evt) {
+		        undo.addEdit(evt.getEdit());
+		    }
+		});
+
+		// Create an undo action and add it to the text component
+		lyricBox.getActionMap().put("Undo",
+		    new AbstractAction("Undo") {
+		        /**
+				 * 
+				 */
+				private static final long serialVersionUID = 1565063027867235847L;
+
+				public void actionPerformed(ActionEvent evt) {
+		            try {
+		                if (undo.canUndo()) {
+		                    undo.undo();
+		                }
+		            } catch (CannotUndoException e) {
+		            }
+		        }
+		   });
+
+		// Bind the undo action to ctl-Z
+		lyricBox.getInputMap().put(KeyStroke.getKeyStroke("control Z"), "Undo");
+
+		// Create a redo action and add it to the text component
+		lyricBox.getActionMap().put("Redo",
+		    new AbstractAction("Redo") {
+		        /**
+				 * 
+				 */
+				private static final long serialVersionUID = -4202651192510434020L;
+
+				public void actionPerformed(ActionEvent evt) {
+		            try {
+		                if (undo.canRedo()) {
+		                    undo.redo();
+		                }
+		            } catch (CannotRedoException e) {
+		            }
+		        }
+		    });
+
+		// Bind the redo action to ctl-Y
+		lyricBox.getInputMap().put(KeyStroke.getKeyStroke("control Y"), "Redo");
 	}
 
 	private void initGUI() {
@@ -76,6 +141,7 @@ public class LyricEditFrame extends JDialog {
 						scrollPane.setPreferredSize(new java.awt.Dimension(437, 418));
 						//lyricBox.setPreferredSize(new java.awt.Dimension(450, 500));
 					}
+
 				}
 				{
 					cancelButton = new JButton();

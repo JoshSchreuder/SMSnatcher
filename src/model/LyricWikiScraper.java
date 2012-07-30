@@ -31,9 +31,9 @@ public class LyricWikiScraper {
 		artist = artist.replace(' ', '_');
 		String mod_title = title.replace(' ', '_');
 		
-		System.out.println("Getting lyrics ("+artist+" : " +mod_title+")!");
+		Logger.LogToStatusBar("Getting lyrics ("+artist+" : " +mod_title+")!");
 		String url = "http://lyrics.wikia.com/"+artist+":"+mod_title;
-		System.out.println(url);
+		Logger.LogToStatusBar(url);
 		String lyrics = "";
 		
 		// Try to load page using Jsoup
@@ -41,9 +41,15 @@ public class LyricWikiScraper {
 			// Load page into Document
 			Document doc = Jsoup.connect(url).get();
 			// Get lyricBox from page
-			Elements lyricBox = doc.getElementsByClass("lyricbox");
-			// Remove ads
-			lyricBox.get(0).getElementsByClass("rtMatcher").remove();
+			Elements lyricBox = doc.select("div.lyricbox");
+			//System.out.println(lyricBox.hasText());
+			if (!lyricBox.hasText()) {
+				Logger.LogToStatusBar("Lyrics not found!");
+				return "";
+			}
+			// Remove ads and junk
+			lyricBox.get(0).select("div.rtMatcher").remove();
+			lyricBox.get(0).select("div.lyricsbreak").remove();
 			// Remove comments
 			ParseUtils.removeComments(lyricBox.get(0));
 			
@@ -63,19 +69,20 @@ public class LyricWikiScraper {
 			
 			lyrics = lyrics.replaceAll("&lt;", "<");
 			lyrics = lyrics.replaceAll("&gt;", ">");
+			lyrics = lyrics.replaceAll("�", "\'");
 			
 			// Check if LyricWiki has full lyrics or only portion
 			if(lyrics.contains("we are not licensed to display the full lyrics")) {
 				return "";
 			}
-			else if(lyrics.contains("Instrumental")) {
+			else if(lyricBox.get(0).select("a").attr("title").contains("Instrumental")) {
 				return "Instrumental";
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("Lyrics not found!");
+			Logger.LogToStatusBar("Lyrics not found!");
 		}
-		System.out.println("Done");
+		Logger.LogToStatusBar("Done");
 		return lyrics;
 	}
 }

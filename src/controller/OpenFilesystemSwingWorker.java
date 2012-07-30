@@ -25,6 +25,7 @@ import java.util.Vector;
 import javax.swing.SwingWorker;
 
 import model.FileLister;
+import model.Logger;
 import model.MP3TagHandler;
 import model.SongTableModel;
 import view.MainFrame;
@@ -42,19 +43,24 @@ public class OpenFilesystemSwingWorker extends SwingWorker<String, Object> {
         MainFrame.getGoButton().setEnabled(false);
         MainFrame.getSongTable().setEnabled(false);
 		((SongTableModel) MainFrame.getSongTable().getModel()).clearTable();
+		Logger.LogToStatusBar(file.getAbsolutePath());
 		MainFrame.getLocationField().setText(file.getAbsolutePath());
         MainFrame.getOptions().setProperty("LastDir", file.getAbsolutePath());
         try {
 			List<File> fileList = FileLister.getFileListing(file);
-			MainFrame.getStatusLabel().setText("Status: loading MP3 files");
+			Logger.LogToStatusBar("Loading MP3 files");
 			MainFrame.getProgressBar().setMinimum(0);
 			MainFrame.getProgressBar().setValue(0);
 			MainFrame.getProgressBar().setMaximum(fileList.size());
 			for (File mp3File : fileList) {
+				Logger.LogToStatusBar(mp3File.getName());
 				Vector<String> song = MP3TagHandler.getTags(mp3File);
-				song.add(mp3File.getAbsolutePath());
 				if (song != null) {
+					song.add(mp3File.getAbsolutePath());
 					((SongTableModel)MainFrame.getSongTable().getModel()).addRow(song);
+				}
+				else {
+					Logger.LogToStatusBar("There was an error loading this MP3!");
 				}
 				
 				int value = MainFrame.getProgressBar().getValue() + 1;
@@ -72,7 +78,7 @@ public class OpenFilesystemSwingWorker extends SwingWorker<String, Object> {
 		MainFrame.getOpenButton().setEnabled(true);
 		MainFrame.getGoButton().setEnabled(true);
 		MainFrame.getSongTable().setEnabled(true);
-		MainFrame.getStatusLabel().setText("Status: loading done.");
+		Logger.LogToStatusBar("Loading done.");
 		return null;
 	}
 
