@@ -1,4 +1,26 @@
-SMSnatcher changelog
-
+========================
+= SMSnatcher changelog =
+========================
+*** Release 1.00 [2012-07-30]
+ * UPDATED:	SongMeanings artist directory up to date
+ * ADDED:	Try removing brackets to search track names+
+ * ADDED:	Undo / redo functionality in lyric editor (CTRL-Z, CTRL-Y)
+ * FIXED:	New scraping rules on both SongMeanings and LyricWiki
+ * FIXED:	Sped up .zip extraction massively for initial load
+ * FIXED:	Now overwrites artist file if it is too small to be real (eg. corrupted)
+ * FIXED:	Don't write 'copyrighted' message to lyrics from SongMeanings
+ 
+*** Release 0.71 beta [2011-09-12]
+ * UPDATED:	SongMeanings artist directory up to date
+ * ADDED:	Menu option to refresh SongMeanings artist directory
+ * ADDED:	Log messages now write to status bar
+ * FIXED:	Issue #7 - SongMeanings - hang on certain songs
+ * FIXED:	Issue #6 - SongMeanings - not getting lyrics for first song
+ * FIXED:	Issue #3 - LyricWiki redirects cause hang
+ 
+*** Release 0.7 beta [2011-04-14]
+ * Fixed loading of config / db files, now extracts to and uses '.smsnatcher' dir in user's home
+ * The above fixes SongMeanings support.
+ 
 *** Release 0.6 beta [2011-04-14]
  * Initial public release
