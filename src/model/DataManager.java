@@ -17,6 +17,7 @@ along with SMSnatcher.  If not, see <http://www.gnu.org/licenses/>.
 */
 package model;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,13 +28,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import view.MainFrame;
 
@@ -82,89 +80,39 @@ public class DataManager {
 		return true;
 	}
 	
-	public static final void copyInputStream(InputStream in, OutputStream out) throws IOException {
-		byte[] buffer = new byte[1024];
-		int len;
-		while((len = in.read(buffer)) >= 0)
-		out.write(buffer, 0, len);
-		in.close();
-		out.close();
-	}
-	
 	public static void extractResourcesToDisk() {
-		Enumeration<?> entries;
-		ZipFile zipFile;
-		
 		MainFrame.getProgressBar().setMinimum(0);
 		MainFrame.getProgressBar().setValue(0);
 		
-		ClassLoader.getSystemResource("db.zip");
+		InputStream fis = ClassLoader.getSystemResourceAsStream("db.zip");
+		ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+		ZipEntry entry;
+		BufferedOutputStream dest = null;
+		final int BUFFER = 2048;
 		
-		File zip = null;
 		try {
-			zip = new File(ClassLoader.getSystemResource("db.zip").toURI());
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			return;
-		}
-
-		try {
-			zipFile = new ZipFile(zip);
-			entries = zipFile.entries();
-			while(entries.hasMoreElements()) {
-				ZipEntry entry = (ZipEntry)entries.nextElement();
-				
-				copyInputStream(zipFile.getInputStream(entry),
-				new BufferedOutputStream(new FileOutputStream(MainFrame.getSettingsDirectory()+"/"+entry.getName())));
-			}
-			zipFile.close();
+	         while((entry = zis.getNextEntry()) != null) {
+				System.out.println("Extracting: " +entry);
+				int count;
+				byte data[] = new byte[BUFFER];
+				// write the files to the disk
+				FileOutputStream fos = new FileOutputStream(MainFrame.getSettingsDirectory()+"/"+entry.getName());
+				dest = new 
+				      BufferedOutputStream(fos, BUFFER);
+				    while ((count = zis.read(data, 0, BUFFER)) 
+				      != -1) {
+				       dest.write(data, 0, count);
+				    }
+				    dest.flush();
+				    dest.close();
+	         }
+	         zis.close();
 		} 
-		catch (IOException ioe) {
-			return;
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
-	
-	/*public static void extractResourcesToDisk() {
-		InputStream fin = ;
-		BufferedInputStream bin = new BufferedInputStream(fin);
-		ZipInputStream zis = new ZipInputStream(bin);
-		ZipEntry entry = null;
-		
-		MainFrame.getProgressBar().setMinimum(0);
-		MainFrame.getProgressBar().setValue(0);
-
-		try {
-			while ((entry = zis.getNextEntry()) != null) {
-				OutputStream  fout = new FileOutputStream();
-				MainFrame.getProgressBar().setValue(0);
-				MainFrame.getProgressBar().setMaximum((int)entry.getSize());
-				
-				byte[] buffer = new byte[8192];
-		        int len;
-		        while ((len = zis.read(buffer)) != -1) {
-		        	fout.write(buffer, 0, len);
-		        	
-	        		int value = MainFrame.getProgressBar().getValue() + 1;
-					if (value > MainFrame.getProgressBar().getMaximum()) {
-						value = MainFrame.getProgressBar().getMaximum();
-					}
-					MainFrame.getProgressBar().setValue(value);
-		        }
-		        fout.close();
-		        break;
-			}
-			fin.close();
-			bin.close();
-			zis.close();
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	} */
 
 	@SuppressWarnings("unchecked")
 	public static void loadData() {
