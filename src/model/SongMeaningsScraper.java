@@ -100,7 +100,7 @@ public class SongMeaningsScraper {
 			// Load page into Document
 			Document doc = Jsoup.connect(songURL).get();
 			// Get lyricBox from page
-			Elements lyricBox = doc.select("#lyricsblock2");
+			Elements lyricBox = doc.select("#textblock");
 			// Remove ads
 			lyricBox.get(0).getElementsByTag("div").remove();
 			// Remove comments
@@ -125,7 +125,7 @@ public class SongMeaningsScraper {
 			lyrics = lyrics.replaceAll("&gt;", ">");
 			lyrics = lyrics.replaceAll("�", "\'");
 			
-			if(lyrics.contains("Due to copyright restrictions")) {
+			if(lyrics.contains("Due to copyright restrictions") || lyrics.contains("Due to a publisher block")) {
 				Logger.LogToStatusBar("Copyright restrictions on this track, bailing out!");
 				return "";
 			}

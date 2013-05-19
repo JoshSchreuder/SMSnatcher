@@ -163,6 +163,8 @@ public class DataManager {
 		}
 		SongMeaningsScraper.addArtistCorrection("Final Fantasy", "Owen Pallett");
 		SongMeaningsScraper.addArtistCorrection("+44", "(+44)");
+		SongMeaningsScraper.addArtistCorrection("The Last Bison", "Bison");
+		SongMeaningsScraper.addArtistCorrection("TTNG", "This Town Needs Guns");
 	}
 
 	public static void saveData() {
